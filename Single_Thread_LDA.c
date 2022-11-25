@@ -9,7 +9,7 @@ int *totalT;
 
 //Unique word tied to topic popularity
 struct wordTopics{
-    char *word;
+    char word[40];
     int *topics;
 };
 
@@ -56,6 +56,14 @@ void wordToTopic(){
 
 
 int main(int argc, char *argv[]){
+
+/*Potential terminal in take for iterations 
+
+*/
+
+struct wordTopics wT[1]
+
+
 
 
 
