@@ -4,32 +4,33 @@
 #include <float.h>
 #include <math.h>
 
-private int k;
-private int *totalT;
+const int k = 3;
+int *totalT;
 
+//Unique word tied to topic popularity
 struct wordTopics{
-    char word[];
-    int *topics[k]
-}
+    char *word;
+    int *topics;
+};
 
 struct wordDocuments{
     int document;
     int popTopic;
-}
-
+};
 
 int normalize(){
     int num = 0;
-    int rand = 
-    float *norm = (float*) calloc(k, sizeOf(float));
+    float rand = randNum();
+    float* norm = (float*) calloc(k, sizeof(float));
 
+    for(int i = 0; i < k; i++){
 
-
+    }
     free(norm);
 }
 
 float randNum(){
-    return
+    return (double)rand() / (double)RAND_MAX;
 }
 
 void topicDistribution(){
@@ -48,17 +49,10 @@ void documentToTopic(){
 
 }
 
-
 void wordToTopic(){
 
 
 }
-
-
-
-
-
-
 
 
 int main(int argc, char *argv[]){
