@@ -4,8 +4,10 @@
 #include <float.h>
 #include <math.h>
 
-const int k = 3;
+
+const int k = 6;
 int *totalT;
+struct wordTopics* words;
 
 //Unique word tied to topic popularity
 struct wordTopics{
@@ -54,6 +56,12 @@ void wordToTopic(){
 
 }
 
+void setUpWordArray(){
+
+
+
+
+}
 
 int main(int argc, char *argv[]){
 
@@ -61,7 +69,9 @@ int main(int argc, char *argv[]){
 
 */
 
-struct wordTopics wT[1]
+words = (struct wordTopics*) malloc(sizeof(struct wordTopics));
+
+setUpWordArray();
 
 
 
