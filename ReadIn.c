@@ -3,28 +3,36 @@
 #include <stdint.h>
 #include <float.h>
 #include <math.h>
+#include <string.h>
 #include <stdbool.h>
 #define MAXCHAR 10000
 
 
 int main(){
 
-    FILE *fp;
     char row[MAXCHAR];
 
-    fp = fopen("/Users/Adhsketch/Desktop/repos/2022-603-Project-Hembrickad/data/practice.csv","r");
+    FILE* fp = fopen("/Users/Adhsketch/Desktop/repos/2022-603-Project-Hembrickad/data/practice.csv","r");
 
-    if(fp == 0) {
-    perror("fopen");
-    exit(1);
-}
-
-    while (feof(fp) != true)
+    while (fgets(row, MAXCHAR, fp))
     {
-        fgets(row, MAXCHAR, fp);
-        printf("Row: %s", row);
+        int column = 0;
+
+        char* r = strtok(row, ",");
+        while(r){
+
+            if(column == 0)
+                printf("Title: ");
+            else
+                printf("Abstract: ");
+            
+            printf("%s\n", r);
+            r = strtok(NULL, ",");
+            column++;
+        }
     }
     
+    fclose(fp);
     return 0;
 }
 
