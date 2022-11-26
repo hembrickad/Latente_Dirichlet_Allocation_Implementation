@@ -61,39 +61,29 @@ vector<string> Split_Line(string str, string delimiter){
     return split_line_tokens;
 }
 
-// Splits 
+// Splits all abstracts in to separate words
 vector<vector<string>> Split_words(vector<vector<string>> document){
     vector<vector<string>> words;
 
+    //Loop through all abstracts and spl
      for( int i = 0; i < document.size(); i++ ){
-        // Get The Current Document
-        vector<string> lines = document.at( i );
-
-        // Only Print The Document Contents, Not The Title
-        //    i.e. Skip The Title (Index 0)
-        for( int j = 1; j < lines.size(); j++ ){
-
-            words.push_back(Split_Line(lines.at(i), " "));
-            //wordsInAbstracts.push_back(Split_words(titlesAndAbstracts.at(i).at(1).c_str()));
-        }
+        //Only read Abstracts
+        words.push_back(Split_Line(document.at(i).at(1), " "));
      }
 
     return words;
 }
 
-int main(int argc, char **argv ){
+// int main(int argc, char **argv ){
 
-    vector<string> fp = Read_File("data/practice.csv");
-    vector<vector<string>> titlesAndAbstracts;
-    vector<vector<string>> wordsInAbstracts;
+//     vector<string> fp = Read_File("data/practice.csv");
+//     vector<vector<string>> titlesAndAbstracts;
+//     vector<vector<string>> wordsInAbstracts;
 
-    // Split Based On Line Delimiter (",")
-    for (string line : fp){
-        titlesAndAbstracts.push_back(Split_Line(line, ","));
-    }
+//     // Split Based On Line Delimiter (",")
+//     for (string line : fp){
+//         titlesAndAbstracts.push_back(Split_Line(line, ","));
+//     }
 
-    wordsInAbstract.push_back(Split_words(titlesAndAbstracts));
-
-    
-        
- }
+//     wordsInAbstracts = Split_words(titlesAndAbstracts);  
+//  }
