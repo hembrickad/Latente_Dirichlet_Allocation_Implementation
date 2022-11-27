@@ -15,26 +15,32 @@ vector<docuTopics> docuTopicLabel;
 vector<wordTopicsMatrix> wordTopicCount;
 vector<wordTopics> wordTopicLabel;
 
+// ~~~~~~~ Structs ~~~~~~~~//
+//Unique word : count to each topic
 struct wordTopicsMatrix{
     string word;
     int* topics;
 };
 
+//Document : count to each topic
 struct docuTopicsMatrix{
     string document;
     int* topics;
 };
 
+//Word : Highest probable topic
 struct wordTopics{
     string word;
     int t;
 };
 
+//Document: Highest probable topic
 struct docuTopics{
     string document;
     int t;
 };
 
+// ~~~~~~~ Methods ~~~~~~~~//
 //Creates wordTopicsMatrix structs for the wordTopicCount
 wordTopicsMatrix createWordTopic(string str){
     int* ptr = (int*) calloc(k, sizeof(int));
@@ -53,7 +59,7 @@ docuTopicsMatrix createDocuTopic(string str){
     return docu;
 }
 
-//
+//Free's all pointers in docuTopicCount and wordTopicCount
 void cleanUp(){
     for(wordTopicsMatrix n : wordTopicCount){
         free(n.topics);

@@ -5,7 +5,7 @@
 #include <vector>
 #include <time.h>
 #include "Utils.cpp"
-#include "Preprocessing.cpp"
+#include "Housekeeping.cpp"
 
 using namespace std;
 
@@ -15,21 +15,25 @@ vector<vector<int>> dTopics;
 vector<vector<int>> wTopics;
 vector<wordTopicsMatrix> wordTopicCount;
 
+//Unique word : count to each topic
 struct wordTopicsMatrix{
     string word;
     int* topics;
 };
 
+//Document : count to each topic
 struct docuTopicsMatrix{
     string document;
     int* topics;
 };
 
+//Word : Highest probable topic
 struct wordTopics{
     string word;
     int t;
 };
 
+//Document: Highest probable topic
 struct docuTopics{
     string document;
     int t;
