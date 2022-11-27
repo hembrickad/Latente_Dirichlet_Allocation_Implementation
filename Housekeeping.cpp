@@ -8,13 +8,6 @@
 
 using namespace std;
 
-const int k = 6;
-int totalWords = 0;
-vector<docuTopicsMatrix> docuTopicCount;
-vector<docuTopics> docuTopicLabel;
-vector<wordTopicsMatrix> wordTopicCount;
-vector<wordTopics> wordTopicLabel;
-
 // ~~~~~~~ Structs ~~~~~~~~//
 //Unique word : count to each topic
 struct wordTopicsMatrix{
@@ -40,25 +33,15 @@ struct docuTopics{
     int t;
 };
 
+// ~~~~~~~ Global Variables ~~~~~~~~//
+const int k = 6;
+int totalWords = 0;
+vector<docuTopicsMatrix> docuTopicCount;//Count for each topic
+vector<docuTopics> docuTopicLabel;//Final General Topic For the Document
+vector<wordTopicsMatrix> wordTopicCount; //Count for each topic
+vector<vector<wordTopics>> wordTopicLabel;//Final General Topic for each
+
 // ~~~~~~~ Methods ~~~~~~~~//
-//Creates wordTopicsMatrix structs for the wordTopicCount
-wordTopicsMatrix createWordTopic(string str){
-    int* ptr = (int*) calloc(k, sizeof(int));
-    wordTopicsMatrix word;
-    word.word = str;
-    word.topics = ptr;    
-    return word;
-}
-
-//Creates docuTopicsMatrix structs for the docuTopicCount
-docuTopicsMatrix createDocuTopic(string str){
-    int* ptr = (int*) calloc(k, sizeof(int));
-    docuTopicsMatrix docu;
-    docu.document= str;
-    docu.topics = ptr;    
-    return docu;
-}
-
 //Free's all pointers in docuTopicCount and wordTopicCount
 void cleanUp(){
     for(wordTopicsMatrix n : wordTopicCount){
@@ -70,35 +53,102 @@ void cleanUp(){
     }
 }
 
+//Counts the randomized topic given to wordTopics for both topic count variables
+void count(wordTopics w, int indexD){
+    for(wordTopicsMatrix str: wordTopicCount)
+        if(str.word.c_str(), w.word.c_str() == 0)
+            str.topics[w.t]++;
+    
+    docuTopicCount.at(indexD).topics[w.t]++;
+}
 
-//Extracts Unique Words
-vector<wordTopicsMatrix> setupTopicMatrix(vector<vector<string>> wordsInAbstracts){
-    vector<wordTopicsMatrix> words;
+//Creates wordTopicsMatrix structs for the wordTopicCount
+wordTopicsMatrix createWordTopicMatrix(string str){
+    int* ptr = (int*) calloc(k, sizeof(int));
+    wordTopicsMatrix word;
+    word.word = str;
+    word.topics = ptr;    
+    return word;
+}
+
+//Creates docuTopicsMatrix structs for the docuTopicCount
+docuTopicsMatrix createDocuTopicMatrix(string str){
+    int* ptr = (int*) calloc(k, sizeof(int));
+    docuTopicsMatrix docu;
+    docu.document= str;
+    docu.topics = ptr;    
+    return docu;
+}
+
+//Creates wordTopics structs for wordTopicLabel
+wordTopics createWordTopics(string str, int i){
+    srand((unsigned)time(0)*totalWords);
+    wordTopics word;
+    word.word = str;
+    word.t = (rand()%6);
+    count(word, i);
+    return word;
+}
+
+//Creates wordTopics structs for wordTopicLabel
+docuTopics createDocuTopics(string str){
+    docuTopics docu;
+    docu.document= str;
+    docu.t = 0;    
+    return docu;
+}
+
+//Creates a vector of unique words and an associated topic array/pointer
+void setupWordTopicCount(vector<vector<string>> wordsInAbstracts){
     int i = -1;
 
     for(vector<string> k: wordsInAbstracts){
         for(string n : k){
-            for(wordTopicsMatrix x : words){
+            for(wordTopicsMatrix x : wordTopicCount){
                 i = strcmp(n.c_str(), x.word.c_str());
                 if(i == 0)
                     break;
             }
             if(i != 0)
-                words.push_back(createWordTopic(n));
+                wordTopicCount.push_back(createWordTopicMatrix(n));
         }
     }
-    return words;
+}
+
+//Creates a list of every word for every document and initializes with random topic
+void setupWordTopicLabel(vector<vector<string>> wordsInAbstracts){
+    vector<wordTopics> lines;
+    int i = 0;
+
+    for(vector<string> k: wordsInAbstracts){
+        for(string n : k){
+            lines.push_back(createWordTopics(n, i));
+            totalWords++;
+        }
+        wordTopicLabel.push_back(lines);
+        lines.clear();
+        i++;
+    }
+}
+
+//Creates a vector of document titles and an associated topic array/pointer
+void setupDocuTopicCount(vector<vector<string>> titlesAndAbstracts){
+    for(vector<string> k: titlesAndAbstracts){
+            docuTopicCount.push_back(createDocuTopicMatrix(k.at(0)));
+    }
+}
+
+//Creates a list of every word for every document and initializes with random topic
+void setupDocuTopicLabel(vector<vector<string>> titlesAndAbstracts){
+    vector<docuTopics> lines;
+
+    for(vector<string> k: titlesAndAbstracts){
+        docuTopicLabel.push_back(createDocuTopics(k.at(0)));  
+    }
 }
 
 
-
-
-
-
-
 int main(int argc, char **argv ){
-
-    //randomTopicSelection(normalize());
 
     vector<string> fp = Read_File("data/practice.csv");
     vector<vector<string>> titlesAndAbstracts;
@@ -115,25 +165,12 @@ int main(int argc, char **argv ){
         wordsInAbstracts.push_back(Split_String_To_Words(titleAndAbstractVtr));
     }
 
-    vector<wordTopicsMatrix> words = setupTopicMatrix(wordsInAbstracts);
-
-    for(wordTopicsMatrix n: words){
-        printf("%s, \n",n.word.c_str());
-    }
-
-
-
-    // For Each Document, Print Words In Document
-    // for (vector<string> abstractWords : wordsInAbstracts)
-    // {
-    //     for (string word : abstractWords)
-    //     {
-    //         printf("%s, ",word.c_str());
-    //     }
-    //     printf("\n");
-    // }
-
+    setupWordTopicCount(wordsInAbstracts);
+    setupDocuTopicCount(titlesAndAbstracts);
+    setupWordTopicLabel(wordsInAbstracts);
+    setupDocuTopicLabel(titlesAndAbstracts);
+    
+    cleanUp();
+  
     printf("Complete");
-
-    // wordsInAbstracts = Split_words(titlesAndAbstracts);  
 }
