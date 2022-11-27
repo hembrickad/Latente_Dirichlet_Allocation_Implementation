@@ -1,10 +1,4 @@
-#include <fstream>
-#include <iostream>
-#include <regex>
-#include <string>
-#include <vector>
-
-using namespace std;
+#include "Utils.h"
 
 // Reads File As Vector Of Lines
 vector<string> Read_File(string file_path)
@@ -28,12 +22,18 @@ vector<string> Read_File(string file_path)
 }
 
 // Split String Using A Delimiter
-vector<string> Split_Line(string str, string delimiter){
+vector<string> Split_String_By_Delimiter(string str, string delimiter, bool remove_extra_whitespace){
     vector<string> split_line_tokens;
     string str_token = "";
     int position = 0;
     regex extra_spaces("\\s+"); // Remove Extra Spaces Within String/Line
     regex trim("^\\s+|\\s+$");  // Remove Pre-and-Post White Space
+
+    // Remove More Than One Whitespace
+    if( remove_extra_whitespace )
+    {
+        str = regex_replace(str, extra_spaces, " ");
+    }
 
     while ((position = str.find(delimiter)) != string::npos)
     {
@@ -62,28 +62,19 @@ vector<string> Split_Line(string str, string delimiter){
 }
 
 // Splits all abstracts in to separate words
-vector<vector<string>> Split_words(vector<vector<string>> document){
-    vector<vector<string>> words;
+vector<string> Split_String_To_Words(vector<string> document){
+    vector<string> words;
 
     //Loop through all abstracts and spl
-     for( int i = 0; i < document.size(); i++ ){
+     for( int i = 1; i < document.size(); i++ ){
         //Only read Abstracts
-        words.push_back(Split_Line(document.at(i).at(1), " "));
+        vector<string> abstractWords = Split_String_By_Delimiter(document.at(i), " ", true);
+
+        for(string word : abstractWords)
+        {
+            words.push_back(word);
+        }
      }
 
     return words;
 }
-
-// int main(int argc, char **argv ){
-
-//     vector<string> fp = Read_File("data/practice.csv");
-//     vector<vector<string>> titlesAndAbstracts;
-//     vector<vector<string>> wordsInAbstracts;
-
-//     // Split Based On Line Delimiter (",")
-//     for (string line : fp){
-//         titlesAndAbstracts.push_back(Split_Line(line, ","));
-//     }
-
-//     wordsInAbstracts = Split_words(titlesAndAbstracts);  
-//  }
