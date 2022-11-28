@@ -1,10 +1,11 @@
+//#include "Utils.cpp"
 #include <fstream>
 #include <iostream>
 #include <regex>
 #include <string>
 #include <vector>
 #include <time.h>
-#include "Utils.cpp"
+
 
 using namespace std;
 
@@ -55,10 +56,14 @@ void cleanUp(){
 
 //Counts the randomized topic given to wordTopics for both topic count variables
 void count(wordTopics w, int indexD){
-    for(wordTopicsMatrix str: wordTopicCount)
-        if(str.word.c_str(), w.word.c_str() == 0)
-            str.topics[w.t]++;
-    
+    int i = 0;
+    int val;
+    for(wordTopicsMatrix str: wordTopicCount){
+        if(strcmp(str.word.c_str(), w.word.c_str())==0){
+            wordTopicCount.at(i).topics[w.t]++;
+        }
+        i++;
+    }
     docuTopicCount.at(indexD).topics[w.t]++;
 }
 
@@ -145,32 +150,4 @@ void setupDocuTopicLabel(vector<vector<string>> titlesAndAbstracts){
     for(vector<string> k: titlesAndAbstracts){
         docuTopicLabel.push_back(createDocuTopics(k.at(0)));  
     }
-}
-
-
-int main(int argc, char **argv ){
-
-    vector<string> fp = Read_File("data/practice.csv");
-    vector<vector<string>> titlesAndAbstracts;
-    vector<vector<string>> wordsInAbstracts;    // Vector Of Documents By Words In Abstract(s) (Not Unique)
-
-    // Split Based On Line Delimiter (",")
-    for (string line : fp){
-        titlesAndAbstracts.push_back(Split_String_By_Delimiter(line, ","));
-    }
-
-    // Split Abstracts In Documents To Individual Words
-    for (vector<string> titleAndAbstractVtr : titlesAndAbstracts)
-    {
-        wordsInAbstracts.push_back(Split_String_To_Words(titleAndAbstractVtr));
-    }
-
-    setupWordTopicCount(wordsInAbstracts);
-    setupDocuTopicCount(titlesAndAbstracts);
-    setupWordTopicLabel(wordsInAbstracts);
-    setupDocuTopicLabel(titlesAndAbstracts);
-    
-    cleanUp();
-  
-    printf("Complete");
 }
