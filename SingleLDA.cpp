@@ -17,6 +17,7 @@ using namespace std;
 // vector<wordTopicsMatrix> wordTopicCount; //Count for each topic
 // vector<vector<wordTopics>> wordTopicLabel;//Final General Topic for each
 
+vector<vector<int>> numbers;
 
 //Selects Random Topic Based on Given Distribution
 int randomTopicSelection(vector<float> distribution){
@@ -51,7 +52,7 @@ vector<float> normalize(vector<float> topics, float num){
 }
 
 //Multiples the TopicsMatrix objects for each word and returns a topic based on the distribution
-int makeDistribution(docuTopicsMatrix d, wordTopicsMatrix w ){
+int makeDistribution(docuTopicsMatrix d, wordTopicsMatrix w){
     vector<float> topics;
     float num = 0;
 
@@ -96,6 +97,7 @@ int max(docuTopics label , docuTopicsMatrix topics){
     int max = -1;
     int index = 0;
     int num;
+    vector<int> lines;
 
     for(int i = 0; i < k; i++){
         num = topics.topics[i];
@@ -113,7 +115,7 @@ void labelDocuments(){
     int i = 0;
 
     for(docuTopics label: docuTopicLabel){
-        docuTopicLabel.at(i).t = max(label, docuTopicCount.at(1));
+        docuTopicLabel.at(i).t = max(label, docuTopicCount.at(i));
         i++;
     }
 }
@@ -164,7 +166,7 @@ int main(int argc, char **argv ){
                 topic = makeDistribution(docuTopicCount.at(i), wordTopicCount.at(index));
                 increment(y, i, topic);
             }
-            i++;
+           i++;
         }
     }
 
@@ -174,8 +176,8 @@ int main(int argc, char **argv ){
     uint64_t diff = (1000000000L * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec) / 1e6;
 
     printOutput();
-    
-    printf("\n\n\nRuntime: %llu ms", (long long unsigned int) diff);
+
+    printf("\n\nRuntime: %llu ms", (long long unsigned int) diff);
 
     cleanUp();
   

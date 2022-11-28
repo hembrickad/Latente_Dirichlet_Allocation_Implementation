@@ -35,7 +35,7 @@ struct docuTopics{
 };
 
 // ~~~~~~~ Global Variables ~~~~~~~~//
-const int k = 6;
+const int k = 3;
 int totalWords = 0;
 vector<docuTopicsMatrix> docuTopicCount;//Count for each topic
 vector<docuTopics> docuTopicLabel;//Final General Topic For the Document
@@ -90,7 +90,7 @@ wordTopics createWordTopics(string str, int i){
     srand((unsigned)time(0)*totalWords);
     wordTopics word;
     word.word = str;
-    word.t = (rand()%6);
+    word.t = (rand()%k);
     count(word, i);
     return word;
 }
@@ -147,7 +147,7 @@ void setupDocuTopicCount(vector<vector<string>> titlesAndAbstracts){
 void setupDocuTopicLabel(vector<vector<string>> titlesAndAbstracts){
     vector<docuTopics> lines;
 
-    for(vector<string> k: titlesAndAbstracts){
-        docuTopicLabel.push_back(createDocuTopics(k.at(0)));  
+    for(vector<string> j: titlesAndAbstracts){
+        docuTopicLabel.push_back(createDocuTopics(j.at(0)));  
     }
 }
