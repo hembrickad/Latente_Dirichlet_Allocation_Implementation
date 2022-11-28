@@ -130,11 +130,11 @@ int main(int argc, char **argv ){
 
     //./SingleLDA <dataset> <iterations>"
 
-    vector<string> fp = Read_File("data/train.csv");
+    vector<string> fp = Read_File("data/practice.csv");
     vector<vector<string>> titlesAndAbstracts;
     vector<vector<string>> wordsInAbstracts;    // Vector Of Documents By Words In Abstract(s) (Not Unique)
     int i, index, topic;
-    int itr = 100;
+    int itr = 1;
 
     // Split Based On Line Delimiter (",")
     for (string line : fp){
@@ -151,6 +151,9 @@ int main(int argc, char **argv ){
     setupWordTopicLabel(wordsInAbstracts);
     setupDocuTopicLabel(titlesAndAbstracts);
 
+    struct timespec start, end;
+
+    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
     for(int j = 0; j < itr; j++){
     i = 0;
@@ -164,11 +167,18 @@ int main(int argc, char **argv ){
             i++;
         }
     }
+
     labelDocuments();
+
+    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+    uint64_t diff = (1000000000L * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec) / 1e6;
+
     printOutput();
+    
+    printf("\n\n\nRuntime: %llu ms", (long long unsigned int) diff);
 
     cleanUp();
   
-    printf("Complete");
+    printf("\nComplete");
 
 }
