@@ -37,13 +37,14 @@ struct wordTopics{
 
 
 // ~~~~~~~ Global Variables ~~~~~~~~//
-const int k = 6;
+const int k = 3;
 int totalWords = 0;
 vector<docuTopicsMatrix> docuTopicCount;//Count for each topic
 vector<wordTopicsMatrix> wordTopicCount; //Count for each topic
 vector<vector<wordTopics>> wordTopicLabel;//Final General Topic for each
-
-
+vector<vector<string>> titlesAndAbstracts;//Dataset with titles and abstracts split
+vector<vector<string>> wordsInAbstracts;//Dataset with words in the abstract split
+mutex m;
 
 // ~~~~~~~ Methods ~~~~~~~~//
 //Free's all pointers in docuTopicCount and wordTopicCount
@@ -98,9 +99,48 @@ wordTopics createWordTopics(string str, int i){
     return word;
 }
 
+//Creates a vector of unique words and an associated topic array/pointer
+void setupWordTopicCount() {
+    m.lock();
+    int i = -1;
+
+    for(vector<string> k: wordsInAbstracts){
+        for(string n : k){
+            for(wordTopicsMatrix x : wordTopicCount){
+                i = strcmp(n.c_str(), x.word.c_str());
+                if(i == 0)
+                    break;
+            }
+            if(i != 0)
+                wordTopicCount.push_back(createWordTopicMatrix(n));
+        }
+    }
+    m.unlock();
+}
+
+
+void setupWordTopicLabel() {
+    m.lock();
+    vector<wordTopics> lines;
+    int i = 0;
+
+    for(vector<string> k: wordsInAbstracts){
+        for(string n : k){
+            lines.push_back(createWordTopics(n, i));
+            totalWords++;
+        }
+        wordTopicLabel.push_back(lines);
+        lines.clear();
+        i++;
+    }
+    m.unlock();
+}
+
 //Creates a vector of document titles and an associated topic array/pointer
-void setupDocuTopicCount(vector<vector<string>> titlesAndAbstracts){
+void setupDocuTopicCount(){
+    m.lock();
     for(vector<string> k: titlesAndAbstracts){
             docuTopicCount.push_back(createDocuTopicMatrix(k.at(0)));
     }
+    m.unlock();
 }
