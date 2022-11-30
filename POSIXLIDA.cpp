@@ -1,14 +1,55 @@
 #include "Utils.cpp"
-#include "Housekeeping.cpp"
+#include "ThreadedHousekeeping.cpp"
+#include <stdio.h>
+#include <stdlib.h>
 #include <fstream>
 #include <iostream>
 #include <regex>
 #include <string>
+#include <pthread.h>
 #include <vector>
 #include <time.h>
 
+vector<vector<string>>* TWords;
 
 using namespace std;
+
+//Creates a vector of unique words and an associated topic array/pointer
+void* setupWordTopicCount(void * data){
+    int i = -1;
+    struct LDAData* lda = (struct LDAData*)data;
+    int a = lda->start;
+    int b = lda->end;
+
+    for(int j = lda->start; j < lda->end; j++){
+        for(string n : TWords->at(j)){
+            for(wordTopicsMatrix x : wordTopicCount){
+                i = strcmp(n.c_str(), x.word.c_str());
+                if(i == 0)
+                    break;
+            }
+            if(i != 0)
+                wordTopicCount.push_back(createWordTopicMatrix(n));
+        }
+    }
+}
+
+//Creates a list of every word for every document and initializes with random topic
+void* setupWordTopicLabel(void * data){
+    vector<wordTopics> lines;
+    int i = 0;
+    struct LDAData* lda = (struct LDAData*)data;
+
+    for(int j = lda->start; j < lda->end; j++){
+        for(string n : TWords->at(j)){
+            lines.push_back(createWordTopics(n, i));
+            totalWords++;
+        }
+        wordTopicLabel.push_back(lines);
+        lines.clear();
+        i++;
+    }
+}
 
 //Selects Random Topic Based on Given Distribution
 int randomTopicSelection(vector<float> distribution){
@@ -94,36 +135,79 @@ void printOutput(){
     }
 }
 
+
 int main(int argc, char **argv){
 
     //./SingleLDA <dataset> <iterations>"
-    struct timespec start, end;
-    struct timespec startWSet;
+    int n_threads = 2;
+
+    pthread_t *threads;
+    int num[n_threads];
+    struct LDAData* LDAdata = (struct LDAData*)malloc(n_threads*sizeof(struct LDAData));
+
+
+    threads = (pthread_t*)malloc(n_threads*sizeof(pthread_t));
+    
     vector<string> fp = Read_File("data/train.csv");
     vector<vector<string>> titlesAndAbstracts;
-    vector<vector<string>> wordsInAbstracts;
+    vector<vector<string>> wordsInAbstracts;    // Vector Of Documents By Words In Abstract(s) (Not Unique)
+    TWords = new vector<vector<string>>();
 
-        // Vector Of Documents By Words In Abstract(s) (Not Unique)
     int i, index, topic;
-    int itr = 20;
+    int itr = 1;
 
-    clock_gettime(CLOCK_MONOTONIC_RAW, &startWSet);
-
-    // Split Based On Line Delimiter (",")
+     // Split Based On Line Delimiter (",")
     for (string line : fp){
         titlesAndAbstracts.push_back(Split_String_By_Delimiter(line, ","));
     }
 
     // Split Abstracts In Documents To Individual Words
     for (vector<string> titleAndAbstractVtr : titlesAndAbstracts){
-        wordsInAbstracts.push_back(Split_String_To_Words(titleAndAbstractVtr));
+        TWords->push_back(Split_String_To_Words(titleAndAbstractVtr));
     }
 
-    setupWordTopicCount(wordsInAbstracts);
-    setupDocuTopicCount(titlesAndAbstracts);
-    setupWordTopicLabel(wordsInAbstracts);
+    int numTest = (TWords->size()/n_threads);
+    int remain = (TWords->size()%n_threads);
 
-    
+    for(int i = 0; i < n_threads; i++){
+    	num[i] = numTest;
+    	if(remain > 0){
+    		num[i] ++;	
+    		remain --;
+    	}
+    }
+
+    for(int i = 0; i < n_threads; i++){
+        if(i == 0){
+    		LDAdata[i].start = 0;
+    		LDAdata[i].end = num[i]-1;
+    	}	
+    	else{
+    		LDAdata[i].start = (LDAdata[i-1].end + 1);
+    		LDAdata[i].end = (LDAdata[i].start + num[i])-1;
+    	}
+    }
+
+    for (i = 0; i < n_threads; i++){
+    		pthread_create(&threads[i], NULL, setupWordTopicCount, (void*)&LDAdata[i]);
+    }
+    	
+    for (i = 0; i < n_threads; i++){
+      		pthread_join(threads[i], NULL);
+    }
+
+    for (i = 0; i < n_threads; i++){
+    		pthread_create(&threads[i], NULL, setupWordTopicLabel, (void*)&LDAdata[i]);
+    }
+    	
+    for (i = 0; i < n_threads; i++){
+      		pthread_join(threads[i], NULL);
+    }
+    // setupWordTopicCount(wordsInAbstracts);
+    // setupDocuTopicCount(titlesAndAbstracts);
+    // setupWordTopicLabel(wordsInAbstracts);
+
+    struct timespec start, end;
 
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
@@ -144,14 +228,12 @@ int main(int argc, char **argv){
 
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
     uint64_t diff = (1000000000L * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec) / 1e6;
-    uint64_t diff2 = (1000000000L * (end.tv_sec - startWSet.tv_sec) + end.tv_nsec - startWSet.tv_nsec) / 1e6;
 
-    
-
-    printf("\n\nRuntime LDA: %llu ms", (long long unsigned int) diff);
-    printf("\nRuntime Total: %llu ms", (long long unsigned int) diff2);
+    printf("\n\nRuntime: %llu ms", (long long unsigned int) diff);
 
     cleanUp();
+    free(threads);
+    free(LDAdata);
   
     printf("\nComplete");
 

@@ -9,7 +9,14 @@
 
 using namespace std;
 
+
 // ~~~~~~~ Structs ~~~~~~~~//
+//For Threading into p_thread
+struct LDAData{
+	int start;
+	int end;
+};
+
 //Unique word : count to each topic
 struct wordTopicsMatrix{
     string word;
@@ -28,12 +35,15 @@ struct wordTopics{
     int t;
 };
 
+
 // ~~~~~~~ Global Variables ~~~~~~~~//
 const int k = 6;
 int totalWords = 0;
 vector<docuTopicsMatrix> docuTopicCount;//Count for each topic
 vector<wordTopicsMatrix> wordTopicCount; //Count for each topic
 vector<vector<wordTopics>> wordTopicLabel;//Final General Topic for each
+
+
 
 // ~~~~~~~ Methods ~~~~~~~~//
 //Free's all pointers in docuTopicCount and wordTopicCount
@@ -86,39 +96,6 @@ wordTopics createWordTopics(string str, int i){
     word.t = (rand() % k);
     count(word, i);
     return word;
-}
-
-//Creates a vector of unique words and an associated topic array/pointer
-void setupWordTopicCount(vector<vector<string>> wordsInAbstracts){
-    int i = -1;
-
-    for(vector<string> k: wordsInAbstracts){
-        for(string n : k){
-            for(wordTopicsMatrix x : wordTopicCount){
-                i = strcmp(n.c_str(), x.word.c_str());
-                if(i == 0)
-                    break;
-            }
-            if(i != 0)
-                wordTopicCount.push_back(createWordTopicMatrix(n));
-        }
-    }
-}
-
-//Creates a list of every word for every document and initializes with random topic
-void setupWordTopicLabel(vector<vector<string>> wordsInAbstracts){
-    vector<wordTopics> lines;
-    int i = 0;
-
-    for(vector<string> k: wordsInAbstracts){
-        for(string n : k){
-            lines.push_back(createWordTopics(n, i));
-            totalWords++;
-        }
-        wordTopicLabel.push_back(lines);
-        lines.clear();
-        i++;
-    }
 }
 
 //Creates a vector of document titles and an associated topic array/pointer

@@ -2,7 +2,12 @@
     "files.associations": {
         "iostream": "cpp",
         "vector": "cpp",
-        "complex": "cpp"
+        "complex": "cpp",
+        "regex": "cpp",
+        "array": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "ranges": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }
