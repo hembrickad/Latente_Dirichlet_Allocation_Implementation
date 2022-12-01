@@ -99,7 +99,7 @@ int main(int argc, char **argv){
     //./SingleLDA <dataset> <iterations>"
     struct timespec start, end;
     struct timespec startWSet;
-    vector<string> fp = Read_File("data/train.csv");
+    vector<string> fp = Read_File("data/data_small.csv");
     vector<vector<string>> titlesAndAbstracts;
     vector<vector<string>> wordsInAbstracts;
 

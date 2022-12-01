@@ -11,7 +11,7 @@
 #include <vector>
 #include <time.h>
 
-#define NTHREADS 5
+#define NTHREADS 32
 
 using namespace std;
 
@@ -101,14 +101,15 @@ void printOutput(){
 
 
 int main(int argc, char **argv){
-
-    //./SingleLDA <dataset> <iterations>"
+    struct timespec start, start2, end;
     
     thread threads[NTHREADS];
-    vector<string> fp = Read_File("data/practice.csv");
+    vector<string> fp = Read_File("data/data_medium.csv");
 
     int i, index, topic;
     int itr = 1;
+
+    clock_gettime(CLOCK_MONOTONIC_RAW, &start2);
 
      // Split Based On Line Delimiter (",")
     for (string line : fp){
@@ -138,8 +139,6 @@ int main(int argc, char **argv){
     for(int i = 0; i < NTHREADS; i++)
         threads[i].join();
 
-    struct timespec start, end;
-
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
     for(int j = 0; j < itr; j++){
@@ -155,12 +154,14 @@ int main(int argc, char **argv){
         }
     }
 
-    printOutput();
+    //printOutput();
 
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
     uint64_t diff = (1000000000L * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec) / 1e6;
+    uint64_t diff2 = (1000000000L * (end.tv_sec - start2.tv_sec) + end.tv_nsec - start2.tv_nsec) / 1e6;
 
     printf("\n\nRuntime: %llu ms", (long long unsigned int) diff);
+    printf("\nRuntime Total: %llu ms", (long long unsigned int) diff2);
 
     cleanUp();
 

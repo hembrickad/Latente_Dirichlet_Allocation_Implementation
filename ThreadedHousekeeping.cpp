@@ -118,7 +118,7 @@ void setupWordTopicCount() {
     m.unlock();
 }
 
-
+//Creates Matrix of all words and gives them a random k number
 void setupWordTopicLabel() {
     m.lock();
     vector<wordTopics> lines;

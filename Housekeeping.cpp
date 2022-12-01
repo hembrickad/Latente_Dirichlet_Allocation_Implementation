@@ -29,7 +29,7 @@ struct wordTopics{
 };
 
 // ~~~~~~~ Global Variables ~~~~~~~~//
-const int k = 6;
+const int k = 1;
 int totalWords = 0;
 vector<docuTopicsMatrix> docuTopicCount;//Count for each topic
 vector<wordTopicsMatrix> wordTopicCount; //Count for each topic
