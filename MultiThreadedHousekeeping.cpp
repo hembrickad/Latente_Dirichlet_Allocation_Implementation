@@ -141,7 +141,7 @@ void* setDataSet(void* data){
 struct LDAData* lda_data = (struct LDAData*)data;
     // Split Abstracts In Documents To Individual Words
      for(int j = lda_data->start; j < lda_data->end; j++){
-        wordsInAbstracts.push_back(Split_String_To_Words(titlesAndAbstracts.at(j)));
+        wordsInAbstracts.at(j) = Split_String_To_Words(titlesAndAbstracts.at(j));
     }
 }
 
