@@ -1,14 +1,44 @@
 #include "Utils.cpp"
-#include "Housekeeping.cpp"
+#include "MultiThreadedHousekeeping.cpp"
 #include <fstream>
 #include <iostream>
 #include <regex>
 #include <string>
 #include <vector>
 #include <time.h>
+#define n_threads 50
 
 
 using namespace std;
+
+struct LDAData* threading(int size){
+    int num[n_threads];
+    int numTest = (size/n_threads);
+    int remain = (size%n_threads);
+
+    struct LDAData* data = (struct LDAData*)malloc(n_threads*sizeof(struct LDAData));
+    	
+    for(int i = 0; i < n_threads; i++){
+    	num[i] = numTest;
+    	if(remain > 0){
+    		num[i] ++;	
+    		remain --;
+    	}
+    }
+    	
+    for(int i = 0; i < n_threads; i++){
+    	if(i == 0){
+    		data[i].start = 0;
+    		data[i].end = num[i]-1;
+    	}	
+    	else{
+    		data[i].start = (data[i-1].end + 1);
+    		data[i].end = (data[i].start +num[i])-1;
+    	}
+    }
+
+    return data;
+}
 
 //Selects Random Topic Based on Given Distribution
 int randomTopicSelection(vector<float> distribution){
@@ -95,17 +125,13 @@ void printOutput(){
 }
 
 int main(int argc, char **argv){
+    pthread_t *threads = (pthread_t*)malloc(n_threads*sizeof(pthread_t));
 
-    //./SingleLDA <dataset> <iterations>"
-    struct timespec start, end;
-    struct timespec startWSet;
-    vector<string> fp = Read_File("data/data_small.csv");
-    vector<vector<string>> titlesAndAbstracts;
-    vector<vector<string>> wordsInAbstracts;
-
-        // Vector Of Documents By Words In Abstract(s) (Not Unique)
+    struct timespec start, startWSet, end;
     int i, index, topic;
     int itr = 20;
+
+    vector<string> fp = Read_File("data/data_small.csv");
 
     clock_gettime(CLOCK_MONOTONIC_RAW, &startWSet);
 
@@ -114,18 +140,40 @@ int main(int argc, char **argv){
         titlesAndAbstracts.push_back(Split_String_By_Delimiter(line, ","));
     }
 
-    // Split Abstracts In Documents To Individual Words
-    for (vector<string> titleAndAbstractVtr : titlesAndAbstracts){
-        wordsInAbstracts.push_back(Split_String_To_Words(titleAndAbstractVtr));
+    struct LDAData* docu = threading(titlesAndAbstracts.size());
+
+    for (i = 0; i < n_threads; i++){
+    	pthread_create(&threads[i], NULL, setDataSet, (void*)&docu[i]);
+    }
+    	
+    for (i = 0; i < n_threads; i++){
+      	pthread_join(threads[i], NULL);
     }
 
+    struct LDAData* words = threading(wordsInAbstracts.size());
+
+    wordTopicLabel = vector<vector<wordTopics>>(wordsInAbstracts.size());
+    docuTopicCount = vector<docuTopicsMatrix>(titlesAndAbstracts.size());
+
     setupWordTopicCount(wordsInAbstracts);
-    setupDocuTopicCount(titlesAndAbstracts);
-    setupWordTopicLabel(wordsInAbstracts);
 
-    
+    for (i = 0; i < n_threads; i++){
+    	pthread_create(&threads[i], NULL, setupDocuTopicCount, (void*)&docu[i]);
+    }
+    	
+    for (i = 0; i < n_threads; i++){
+      	pthread_join(threads[i], NULL);
+    }
 
-    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+    for (i = 0; i < n_threads; i++){
+    	pthread_create(&threads[i], NULL, setupWordTopicLabel, (void*)&words[i]);
+    }
+    	
+    for (i = 0; i < n_threads; i++){
+      	pthread_join(threads[i], NULL);
+    }
+
+    // clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
     // for(int j = 0; j < itr; j++){
     // i = 0;
@@ -140,19 +188,20 @@ int main(int argc, char **argv){
     //     }
     // }
 
-    //printOutput();
+    // printOutput();
 
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
-    uint64_t diff = (1000000000L * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec) / 1e6;
+    // uint64_t diff = (1000000000L * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec) / 1e6;
     uint64_t diff2 = (1000000000L * (end.tv_sec - startWSet.tv_sec) + end.tv_nsec - startWSet.tv_nsec) / 1e6;
 
     
 
-    printf("\n\nRuntime LDA: %llu ms", (long long unsigned int) diff);
+    // printf("\n\nRuntime LDA: %llu ms", (long long unsigned int) diff);
     printf("\nRuntime Total: %llu ms", (long long unsigned int) diff2);
 
-    cleanUp();
+    // cleanUp();
   
-    printf("\nComplete");
+    // printf("\nComplete");
 
+    free(threads);
 }
