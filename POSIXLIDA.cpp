@@ -86,6 +86,7 @@ void increment(wordTopics str, int index, int newTopic){
         i++;
     }
     docuTopicCount.at(index).topics[newTopic]++;
+    str.t = newTopic;
 }
 
 //Print output

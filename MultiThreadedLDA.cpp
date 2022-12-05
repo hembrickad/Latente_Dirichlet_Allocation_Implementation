@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include <time.h>
-#define n_threads 50
+#define n_threads 2
 
 
 using namespace std;
@@ -111,6 +111,7 @@ void increment(wordTopics str, int index, int newTopic){
         i++;
     }
     docuTopicCount.at(index).topics[newTopic]++;
+    str.t = newTopic;
 }
 
 //Print output
@@ -127,19 +128,20 @@ void printOutput(){
 int main(int argc, char **argv){
     pthread_t *threads = (pthread_t*)malloc(n_threads*sizeof(pthread_t));
 
-    struct timespec start, startWSet, end;
+    //struct timespec start, start1, start3, end3, end1, end;
     int i, index, topic;
     int itr = 5;
 
-    vector<string> fp = Read_File("data/data_small.csv");
+    vector<string> fp = Read_File("data/data_small_demo.csv");
 
-    clock_gettime(CLOCK_MONOTONIC_RAW, &startWSet);
+    //clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
     // Split Based On Line Delimiter (",")
     for (string line : fp){
         titlesAndAbstracts.push_back(Split_String_By_Delimiter(line, ","));
     }
 
+    
     struct LDAData* docu = threading(titlesAndAbstracts.size());
     docuTopicCount = vector<docuTopicsMatrix>(titlesAndAbstracts.size());
     wordsInAbstracts = vector<vector<string>>(titlesAndAbstracts.size());
@@ -152,13 +154,13 @@ int main(int argc, char **argv){
       	pthread_join(threads[i], NULL);
     }
 
+
     struct LDAData* words = threading(wordsInAbstracts.size());
 
     wordTopicLabel = vector<vector<wordTopics>>(wordsInAbstracts.size());
     
 
     setupWordTopicCount(wordsInAbstracts);
-    //setupDocuTopicCount(titlesAndAbstracts);
 
     for (i = 0; i < n_threads; i++){
     	pthread_create(&threads[i], NULL, setupDocuTopicCount, (void*)&docu[i]);
@@ -168,6 +170,7 @@ int main(int argc, char **argv){
       	pthread_join(threads[i], NULL);
     }
 
+
     for (i = 0; i < n_threads; i++){
     	pthread_create(&threads[i], NULL, setupWordTopicLabel, (void*)&words[i]);
     }
@@ -175,8 +178,6 @@ int main(int argc, char **argv){
     for (i = 0; i < n_threads; i++){
       	pthread_join(threads[i], NULL);
     }
-
-    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
     for(int j = 0; j < itr; j++){
     i = 0;
@@ -191,18 +192,9 @@ int main(int argc, char **argv){
         }
     }
 
-    //printOutput();
+    printOutput();
 
-    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
-    uint64_t diff = (1000000000L * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec) / 1e6;
-    uint64_t diff2 = (1000000000L * (end.tv_sec - startWSet.tv_sec) + end.tv_nsec - startWSet.tv_nsec) / 1e6;
-
-    
-
-    printf("\n\nRuntime LDA: %llu ms", (long long unsigned int) diff);
-    printf("\nRuntime Total: %llu ms", (long long unsigned int) diff2);
-
-    // cleanUp();
+    cleanUp();
   
     // printf("\nComplete");
 

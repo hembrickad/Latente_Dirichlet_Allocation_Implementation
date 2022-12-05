@@ -32,10 +32,10 @@ vector<string> Split_String_By_Delimiter(string str, string delimiter, bool clea
     regex punctuation("s/[^\\w+|\\s+|\\d+]//g");
     regex latex("\\$[\\w+|\\W+]+?\\$");
 
-
  
     if(clean_words)
     {
+        
         //Remove More Than One Whitespace
         str = regex_replace(str, extra_spaces, " ");
 
@@ -45,9 +45,12 @@ vector<string> Split_String_By_Delimiter(string str, string delimiter, bool clea
         //Remove Punctuation
         str = regex_replace(str, punctuation, "");
 
+
+
         str.erase(remove(str.begin(), str.end(), ')'), str.end());
         str.erase(remove(str.begin(), str.end(), '('), str.end());
         str.erase(remove(str.begin(), str.end(), '.'), str.end());
+        str.erase(remove(str.begin(), str.end(),'"'), str.end());
 
         //Changes a strings to lowercase
         transform(str.begin(), str.end(), str.begin(), ::tolower);

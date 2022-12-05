@@ -81,6 +81,7 @@ void increment(wordTopics str, int index, int newTopic){
         i++;
     }
     docuTopicCount.at(index).topics[newTopic]++;
+    str.t = newTopic;
 }
 
 //Print output
@@ -127,18 +128,18 @@ int main(int argc, char **argv){
 
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
-    // for(int j = 0; j < itr; j++){
-    // i = 0;
+    for(int j = 0; j < itr; j++){
+    i = 0;
 
-    //     for(vector<wordTopics> x: wordTopicLabel){
-    //         for(wordTopics y : x){
-    //             index = decrement(y,i);
-    //             topic = makeDistribution(docuTopicCount.at(i), wordTopicCount.at(index));
-    //             increment(y, i, topic);
-    //         }
-    //        i++;
-    //     }
-    // }
+        for(vector<wordTopics> x: wordTopicLabel){
+            for(wordTopics y : x){
+                index = decrement(y,i);
+                topic = makeDistribution(docuTopicCount.at(i), wordTopicCount.at(index));
+                increment(y, i, topic);
+            }
+           i++;
+        }
+    }
 
     //printOutput();
 
